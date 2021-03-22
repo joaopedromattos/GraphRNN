@@ -55,6 +55,12 @@ if __name__ == '__main__':
     graph_validate_len = 0
     for graph in graphs_validate:
         graph_validate_len += graph.number_of_nodes()
+
+    print(graphs_test, graphs_train, graphs_validate, graphs)
+
+    # Discussion point...
+    graphs_train = graphs_test
+    graphs_validate = graphs_test
     graph_validate_len /= len(graphs_validate)
     print('graph_validate_len', graph_validate_len)
 

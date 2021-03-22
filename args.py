@@ -23,7 +23,7 @@ class Args():
         # self.graph_type = 'caveman_small'
         # self.graph_type = 'caveman_small_single'
         # self.graph_type = 'community4'
-        self.graph_type = 'grid'
+        # self.graph_type = 'grid'
         # self.graph_type = 'grid_small'
         # self.graph_type = 'ladder_small'
 
@@ -33,6 +33,7 @@ class Args():
         # self.graph_type = 'barabasi_small'
         # self.graph_type = 'citeseer'
         # self.graph_type = 'citeseer_small'
+        self.graph_type = 'EVENT'
 
         # self.graph_type = 'barabasi_noise'
         # self.noise = 10
