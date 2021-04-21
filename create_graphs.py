@@ -131,7 +131,7 @@ def create(args):
                                   name='DD', node_attributes=False, graph_labels=True)
         args.max_prev_node = 230
     elif args.graph_type == 'EVENT':
-        graphs = Graph_load_batch(min_num_nodes=100, max_num_nodes=500,
+        graphs = Graph_load_batch(min_num_nodes=100, max_num_nodes=5000,
                                   name='EVENT', node_attributes=False, graph_labels=False)
         args.max_prev_node = 230
     elif args.graph_type == 'citeseer':
