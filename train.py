@@ -553,15 +553,20 @@ def test_rnn_epoch(epoch, args, rnn, output, test_batch_size=16):
     rnn.eval()
     output.eval()
 
+    args.max_num_node = 600
+
     # generate graphs
     max_num_node = int(args.max_num_node)
     y_pred_long = Variable(torch.zeros(
         test_batch_size, max_num_node, args.max_prev_node)).cuda()  # discrete prediction
     x_step = Variable(torch.ones(
         test_batch_size, 1, args.max_prev_node)).cuda()
+
     print("Max num node:", 600)
+
     for i in tqdm(range(600)):
         h = rnn(x_step)
+
         # output.hidden = h.permute(1,0,2)
         hidden_null = Variable(torch.zeros(
             args.num_layers - 1, h.size(0), h.size(2))).cuda()
@@ -570,14 +575,21 @@ def test_rnn_epoch(epoch, args, rnn, output, test_batch_size=16):
         x_step = Variable(torch.zeros(
             test_batch_size, 1, args.max_prev_node)).cuda()
         output_x_step = Variable(torch.ones(test_batch_size, 1, 1)).cuda()
+
         for j in range(min(600, i+1)):
+
             output_y_pred_step = output(output_x_step)
             output_x_step = sample_sigmoid(
                 output_y_pred_step, sample=True, sample_time=5)
+
             x_step[:, :, j:j+1] = output_x_step
+
             output.hidden = Variable(output.hidden.data).cuda()
+
         y_pred_long[:, i:i + 1, :] = x_step
+
         rnn.hidden = Variable(rnn.hidden.data).cuda()
+
     y_pred_long_data = y_pred_long.data.long()
 
     # save graphs as pickle
