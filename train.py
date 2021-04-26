@@ -562,9 +562,9 @@ def test_rnn_epoch(epoch, args, rnn, output, test_batch_size=16):
     x_step = Variable(torch.ones(
         test_batch_size, 1, args.max_prev_node)).cuda()
 
-    print("Max num node:", 600)
+    print("Max num node:", args.max_num_node)
 
-    for i in tqdm(range(600)):
+    for i in tqdm(range(args.max_num_node)):
         h = rnn(x_step)
 
         # output.hidden = h.permute(1,0,2)
@@ -576,7 +576,7 @@ def test_rnn_epoch(epoch, args, rnn, output, test_batch_size=16):
             test_batch_size, 1, args.max_prev_node)).cuda()
         output_x_step = Variable(torch.ones(test_batch_size, 1, 1)).cuda()
 
-        for j in range(min(600, i+1)):
+        for j in range(min(args.max_num_node, i+1)):
 
             output_y_pred_step = output(output_x_step)
             output_x_step = sample_sigmoid(
@@ -739,26 +739,29 @@ def train(args, dataset_train, rnn, output):
         time_all[epoch - 1] = time_end - time_start
         # test
         if epoch % args.epochs_test == 0 and epoch >= args.epochs_test_start:
-            for sample_time in range(1, 4):
-                G_pred = []
-                while len(G_pred) < args.test_total_size:
-                    if 'GraphRNN_VAE' in args.note:
-                        G_pred_step = test_vae_epoch(
-                            epoch, args, rnn, output, test_batch_size=args.test_batch_size, sample_time=sample_time)
-                    elif 'GraphRNN_MLP' in args.note:
-                        G_pred_step = test_mlp_epoch(
-                            epoch, args, rnn, output, test_batch_size=args.test_batch_size, sample_time=sample_time)
-                    elif 'GraphRNN_RNN' in args.note:
-                        G_pred_step = test_rnn_epoch(
-                            epoch, args, rnn, output, test_batch_size=args.test_batch_size)
-                    G_pred.extend(G_pred_step)
-                # save graphs
-                fname = args.graph_save_path + args.fname_pred + \
-                    str(epoch) + '_'+str(sample_time) + '.dat'
-                save_graph_list(G_pred, fname)
-                if 'GraphRNN_RNN' in args.note:
-                    break
-            print('test done, graphs saved')
+            for i in [500, 600, 700, 800, 900, 1000, 1500]:
+                args.max_num_node = i
+                for sample_time in range(1, 4):
+                    G_pred = []
+                    while len(G_pred) < args.test_total_size:
+                        if 'GraphRNN_VAE' in args.note:
+                            G_pred_step = test_vae_epoch(
+                                epoch, args, rnn, output, test_batch_size=args.test_batch_size, sample_time=sample_time)
+                        elif 'GraphRNN_MLP' in args.note:
+                            G_pred_step = test_mlp_epoch(
+                                epoch, args, rnn, output, test_batch_size=args.test_batch_size, sample_time=sample_time)
+                        elif 'GraphRNN_RNN' in args.note:
+                            G_pred_step = test_rnn_epoch(
+                                epoch, args, rnn, output, test_batch_size=args.test_batch_size)
+                        G_pred.extend(G_pred_step)
+                    # save graphs
+                    fname = args.graph_save_path + args.fname_pred + \
+                        str(epoch) + '_'+str(sample_time) + \
+                        f"_{i}_nodes" + '.dat'
+                    save_graph_list(G_pred, fname)
+                    if 'GraphRNN_RNN' in args.note:
+                        break
+                print(f'Completed - {fname}')
 
         # save model checkpoint
         if args.save:
